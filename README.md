@@ -844,7 +844,7 @@ Related packages:
 
 - [@3xjn/roblox-css-compiler](https://github.com/3xjn/roblox-css-compiler)
 
-Authenticate Git with GitHub before running `npm install`; development dependencies use the related private GitHub repositories.
+Run `npm install` to install development dependencies from the related GitHub repositories.
 
 Run `npm install` and `npm run build` to compile the TypeScript package. Git installations build its compiled JavaScript through the `prepare` script.
 
