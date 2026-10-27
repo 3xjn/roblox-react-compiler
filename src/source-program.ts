@@ -51,7 +51,13 @@ export function sourceProgram(
   rootKind?: ts.ScriptKind,
 ) {
   const canonical = (name: string) => {
-    const absolute = ts.sys.resolvePath(name).replaceAll('\\', '/');
+    const resolved = ts.sys.resolvePath(name);
+    // Project inputs may have been resolved through a package junction or
+    // symlink. Match TypeScript's physical module identity when lookup later
+    // reaches the same input through the consumer's node_modules path.
+    let physical = resolved;
+    try { physical = ts.sys.realpath?.(resolved) ?? resolved; } catch { /* Virtual inputs have no physical path. */ }
+    const absolute = physical.replaceAll('\\', '/');
     return ts.sys.useCaseSensitiveFileNames ? absolute : absolute.toLowerCase();
   };
   const parse = (name: string, content: string, kind?: ts.ScriptKind) =>
@@ -123,8 +129,7 @@ export function sourceProgram(
   host.directoryExists = (name) => {
     const prefix = canonical(name).replace(/\/?$/, '/');
     return (
-      [...files.keys()].some((file) => file.startsWith(prefix)) ||
-      ((standardLibrary||coreLibraries.size>0) && prefix === libRoot && !!directoryExists?.(name))
+      [...files.keys()].some((file) => file.startsWith(prefix)) || !!directoryExists?.(name)
     );
   };
   host.realpath = (name) => name;

@@ -15,6 +15,8 @@
     "prepare": "npm run build"
   },
   "dependencies": {
+    "@types/react": "^17.0.93",
+    "@types/use-sync-external-store": "^1.7.0",
     "@3xjn/roblox-css-compiler": "git+https://github.com/3xjn/roblox-css-compiler.git#8590ec16a4afade8032fcaa92a5861bdbc620b01",
     "@roblox-ts/luau-ast": "2.0.0",
     "class-variance-authority": "0.7.1",

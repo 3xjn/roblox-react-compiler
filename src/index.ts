@@ -451,8 +451,11 @@ export function compileComponent(text: string, options: CompileOptions): Compile
         }
         const globalBinding=options.types.some(binding=>!binding.module&&!binding.local&&binding.name===names[0]);
         const declarations=symbol?.declarations;
-        const authenticStandardLibrary=!!declarations?.length
-          &&declarations.every(declaration=>standardLibraryFile(declaration.getSourceFile()));
+        // Empty React DOM fallback interfaces still denote platform globals.
+        const platformDeclaration=(declaration:ts.Declaration)=>standardLibraryFile(declaration.getSourceFile()) ||
+          ts.isInterfaceDeclaration(declaration) && declaration.members.length===0 &&
+          /(?:^|\/)@types\/react\/global\.d\.ts$/i.test(declaration.getSourceFile().fileName.replaceAll('\\','/'));
+        const authenticStandardLibrary=!!declarations?.length && declarations.every(platformDeclaration);
         if (!module && (globalBinding&&authenticStandardLibrary
           || !declarations?.some(declaration=>!standardLibraryFile(declaration.getSourceFile())))) members = names;
       }
@@ -1634,7 +1637,12 @@ export function compileComponent(text: string, options: CompileOptions): Compile
     if (!components.has(fn) || !parameter || !name) continue;
     const props = parameter.type ? checker.getTypeAtLocation(parameter) : contextualProps(fn);
     if (!props) continue;
-    const properties = checker.getPropertiesOfType(props).flatMap(property => {
+    // An unresolved foreign props type can collapse an intersection to `any`.
+    // Its explicitly authored members still have independently checked types.
+    const explicit = parameter.type && ts.isIntersectionTypeNode(parameter.type)
+      ? parameter.type.types.filter(ts.isTypeLiteralNode).flatMap(type => checker.getPropertiesOfType(checker.getTypeFromTypeNode(type))) : [];
+    const candidates = checker.getPropertiesOfType(props);
+    const properties = [...new Map([...explicit, ...candidates].map(property => [property.name, property])).values()].flatMap(property => {
       const declaration = property.valueDeclaration ?? property.declarations?.[0];
       if (!declaration) return [];
       let projected: ts.TypeNode | undefined;
