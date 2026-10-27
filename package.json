@@ -1,0 +1,40 @@
+{
+  "name": "@3xjn/roblox-react-compiler",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE.react"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@3xjn/roblox-css-compiler": "git+https://github.com/3xjn/roblox-css-compiler.git#8590ec16a4afade8032fcaa92a5861bdbc620b01",
+    "@roblox-ts/luau-ast": "2.0.0",
+    "class-variance-authority": "0.7.1",
+    "typescript": "~5.8.3"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3xjn/roblox-react-compiler.git"
+  },
+  "homepage": "https://github.com/3xjn/roblox-react-compiler#readme",
+  "bugs": {
+    "url": "https://github.com/3xjn/roblox-react-compiler/issues"
+  },
+  "description": "Compile supported upstream React and JavaScript sources for Roblox.",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.8.3",
+    "@types/node": "^24.0.0"
+  }
+}
